@@ -1,0 +1,77 @@
+{% do view.registerAssetBundle("modules\\helpers\\assets\\TemplateMakerAssets") %}
+
+{% import "_includes/forms" as forms %}
+
+<form id="template-maker" action="/template-maker">
+
+	{{ forms.textField({
+		id: 'path',
+		label: 'Template Maker',
+	  instructions: 'Compile template markup for this entry type using the field data above. The template location is relative to your template directory.',
+		name: 'path',
+		placeholder: 'File Path',
+		value: path ?? ''
+	}) }}
+
+	{{ forms.textField({
+		id: 'template',
+		name: 'template',
+		placeholder: 'Template Name',
+		value: template ?? ''
+	}) }}
+
+	{{ forms.checkbox({
+		id : 'variables',
+		label: 'Place all variables near the top of the template',
+		name: 'variables',
+		value: 'false'
+	}) }}
+
+	<p class="notice change">
+		<i>ℹ️</i>A change in the field layout was detected. Remember to save this entry
+		type before attempting to generate the template file.
+	</p>
+
+	<p class="notice success" data-templates="{{ alias('@templates') }}">
+		<i>✅</i>A new template file was created <em></em>
+	</p>
+
+	<p class="notice error">
+		<i>❌</i>There was an error creating the template file <em></em>
+		<span></span>
+	</p>
+
+	<warning-message>
+
+		<p>
+			<i>⚠️</i>It looks like the template file <em></em> already exists.
+		</p>
+
+		{{ forms.checkbox({
+			id : 'overwrite',
+		  label: 'Overwrite template',
+			name: 'overwrite',
+			value: 'false'
+		}) }}
+
+		<overwite-enabled>
+			A file by this name already exists. If you continue, the original file will be overwritten. This can not be undone.
+		</overwite-enabled>
+		<overwite-disabled>
+			A timestamp will be suffixed at the end of the filename to avoid loss of data.
+		</overwite-disabled>
+	</warning-message>
+
+	{% js at head %}
+		var templateMakerOptions = {
+		  sectionId   : "{{ sectionId }}",
+		  entryTypeId : "{{ entryTypeId }}",
+		  default     : "{{ template }}",
+			timestamp   : "{{ timestamp }}",
+			allFiles    : JSON.parse('{{ allFiles|raw }}')
+		}
+	{% endjs %}
+
+	<button class="btn submit" type="submit">Generate Template File</submit>
+
+<form>

@@ -1,0 +1,9 @@
+{% set <FieldHandle> = entry.<FieldHandle> %}
+
+{% if <FieldHandle> is not empty %}
+
+  <h3>{{ "<FieldName>"|t }}</h3>
+
+  {{ entry.<FieldHandle>|t|raw }}
+
+{% endif %}

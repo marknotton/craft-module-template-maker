@@ -1,0 +1,31 @@
+{
+    "name": "marknotton/template-maker",
+    "description": "Craft CMS 3 template-maker module",
+    "type": "craft-module",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-module"
+    ],
+    "support": {
+        "docs": "https://github.com/marknotton/craft-module-template-maker/blob/master/README.md",
+        "issues": "https://github.com/marknotton/craft-module-template-maker"
+    },
+    "license": "MIT",
+    "authors": [{
+        "name": "Mark Notton",
+        "homepage": "https://github.com/marknotton/craft-module-template-maker"
+      }
+    ],
+    "extra": {
+        "name": "Template Maker",
+        "handle": "template-maker",
+        "schemaVersion": "1.0.0",
+        "hasCpSettings": false,
+        "hasCpSection": false,
+        "changelogUrl": "https://github.com/marknotton/craft-module-template-maker/blob/master/CHANGELOG.md",
+        "class": "marknotton\\template-maker\\TemplateMaker"
+    }
+}

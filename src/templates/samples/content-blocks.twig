@@ -1,0 +1,21 @@
+{% set <FieldHandle> = blocks ?? entry.<FieldHandle>.all() ?? false %}
+
+{% if <FieldHandle> is not empty %}
+
+  <FieldHeading>
+
+  {% for block in <FieldHandle> %}
+
+    {% set blocktype = block.type.handle %}
+
+    {% switch blocktype %}
+      <FieldContent>
+      {% default %}
+
+        {% include "_components/"~block.type ignore missing with { (blocktype) : block[blocktype] ?? block } only %}
+
+    {% endswitch %}
+
+  {% endfor %}
+
+{% endif %}

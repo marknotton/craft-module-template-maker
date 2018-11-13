@@ -1,0 +1,13 @@
+{% set <FieldHandle> = entry.<FieldHandle>.all() %}
+
+{% if <FieldHandle> is not empty %}
+
+  <h3>{{ "<FieldName>"|t }}</h3>
+
+  <ul class="<FieldClass>">
+    {% for tag in <FieldHandle> %}
+      <li><a href="{{ url('tags/'~tag.slug) }}">{{ tag.title|t }}</a></li>
+    {% endfor %}
+  </ul>
+
+{% endif %}

@@ -1,0 +1,22 @@
+{
+"pluginName":"Template Maker",
+"pluginDescription":"",
+"pluginVersion":"1.0.6",
+"pluginAuthorName":"Mark Notton",
+"pluginAuthorUrl":"www.marknotton.uk",
+"codeComments":"",
+"pluginComponents":"",
+"consolecommandName":"",
+"controllerName":"",
+"cpsectionName":"",
+"elementName":"",
+"fieldName":"",
+"modelName":"",
+"purchasableName":"",
+"recordName":"",
+"serviceName":"",
+"taskName":"",
+"utilityName":"",
+"widgetName":"",
+"apiVersion":"module_api_version_3_0"
+}

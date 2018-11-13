@@ -1,0 +1,13 @@
+{% set <FieldHandle> = entry.<FieldHandle> %}
+
+{% if <FieldHandle> is not empty %}
+
+  <h3>{{ "<FieldName>"|t }}</h3>
+
+  <ul class="<FieldClass>">
+    {% for option in <FieldHandle>.options %}
+      <li {{ option.selected ? 'selected '}}data-value="{{ option.value }}">{{ option|t }}</li>
+    {% endfor %}
+  </ul>
+
+{% endif %}

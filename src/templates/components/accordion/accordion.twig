@@ -1,0 +1,23 @@
+{% if heading is defined and content is defined %}
+
+  {% set elementTag   = elementTag ?? 'dl' %}
+  {% set headingTag   = headingTag ?? 'dt' %}
+  {% set contentTag   = contentTag ?? 'dd' %}
+  {% set headingArrow = headingArrow ?? 'arrow-right' %}
+
+  <{{ elementTag }} class="accordion{{open is defined and open == true ? ' open'}}">
+
+    <{{ headingTag }}>
+      {{ heading|raw }}
+      {{ symbol(headingArrow) }}
+    </{{ headingTag }}>
+
+    <{{ contentTag }}>
+      <div>
+        {{ content ?? false }}
+      </div>
+    </{{ contentTag }}>
+
+  </{{ elementTag }}>
+
+{% endif %}

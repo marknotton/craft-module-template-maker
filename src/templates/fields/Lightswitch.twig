@@ -1,0 +1,9 @@
+{% set <FieldHandle> = entry.<FieldHandle> %}
+
+  <h3>{{ "<FieldName>"|t }}</h3>
+
+  {% if <FieldHandle> %}
+    <p>I'm on!</p>
+  {% else %}
+    <p>I'm off.</p>
+  {% endif %}

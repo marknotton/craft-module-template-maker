@@ -1,0 +1,15 @@
+{% set <FieldHandle> = entry.<FieldHandle> %}
+
+{% if <FieldHandle> is not empty %}
+
+  {% set <FieldHandle> = <FieldHandle>|json_decode %}
+
+  <h3>{{ "<FieldName>"|t }}</h3>
+
+  <video-container style="background-image:url({{ <FieldHandle>.poster.large ?? images ~ 'default-featured.jpg' }})">
+
+    <iframe src="{{ <FieldHandle>.embed }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+  </video-container>
+
+{% endif %}

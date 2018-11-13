@@ -1,0 +1,5 @@
+<static-map>
+  <a href='http://maps.google.com/maps?q="{{location.address|replace({', ': ',', ' ': '+'})|default('Exeter') }}"' target='_blank'>
+    <img src="https://maps.googleapis.com/maps/api/staticmap?center={{location.address|replace({', ': ',', ' ': '+'})|default('Exeter') }}&size=600x350&zoom=16&style=element:labels|visibility:off&markers=color:red%7C{{ location.latitude }},{{ location.longitude }}&key=AIzaSyCeGedgHOtXZjPoxlEd4da7eH8uN6FKFfA" alt="{{location.address}}">
+  </a>
+</static-map>

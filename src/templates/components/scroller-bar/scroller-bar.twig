@@ -1,0 +1,22 @@
+{% set count = 12 %}
+
+{% set logos %}
+  {% for i in 0..count %}
+    <li>
+      <a href="#">
+        <img src="https://picsum.photos/20{{i}}/10{{i}}/?random" alt="Logo {{ i }}">
+      </a>
+    </li>
+  {% endfor %}
+{% endset %}
+
+<scroller-bar style="--scroller-duration:{{count*2}}s">
+
+  <h4>Scroller Bar</h4>
+
+  <nav>
+    <ul>{{ logos }}</ul>
+    <ul>{{ logos }}</ul>
+  </nav>
+
+</scroller-bar>

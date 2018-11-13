@@ -1,0 +1,22 @@
+{% set testimonials = quote ?? craft.entries.section('testimonials').orderBy('Rand()').limit(limit|default(1)) %}
+
+{% if testimonials|length %}
+
+  <testimonial-quotes{{ testimonials|length > 1 ? ' data-count='~testimonials|length }}>
+
+    {{ symbol('quotes-open') }}
+
+    {% for testimonial in testimonials.all() %}
+
+      <blockquote{{testimonial.cite is not empty and testimonial.cite is url ? ' cite='~testimonial.cite}}>
+        {{ testimonial.quote|sentences|striptags|cleanup }}
+        {{ testimonial.cite|footer }}
+      </blockquote>
+
+    {% endfor %}
+
+    {{ symbol('quotes-close') }}
+
+  </testimonial-quotes>
+
+{% endif %}

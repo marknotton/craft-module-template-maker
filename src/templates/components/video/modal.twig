@@ -1,0 +1,17 @@
+{% extends '_components/modals/template' %}
+
+{% block modal %}
+
+  {% set videoBlock = entry.videoBlock %}
+
+  {% if videoBlock %}
+
+    {% set video = videoBlock.video|json_decode %}
+
+    {% set poster = videoBlock.poster is not empty ? videoBlock.poster.one.getUrl(featured) : video.poster.large %}
+
+    <div id="temp-player" data-plyr-provider="{{ video.format }}" data-plyr-embed-id="{{ video.code }}" allow="autoplay"></div>
+
+  {% endif %}
+
+{% endblock %}

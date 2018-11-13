@@ -1,0 +1,14 @@
+{% set <FieldHandle> = entry.<FieldHandle> %}
+
+{% if <FieldHandle> is not empty %}
+
+  {% set <FieldHandle> = <FieldHandle>.getHex() %}
+
+  <h3><FieldName>|t</h3>
+
+  <p>
+    {{ <FieldHandle>|t }}
+    <span style="background-color:{{ <FieldHandle> }}; width:20px; height:20px; display:inline-block; margin-left:5px;"></span>
+  </p>
+
+{% endif %}

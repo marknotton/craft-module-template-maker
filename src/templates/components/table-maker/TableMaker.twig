@@ -1,0 +1,32 @@
+{% set <FieldHandle> = entry.<FieldHandle> %}
+
+{% if <FieldHandle> is not empty %}
+
+  {% set columns = <FieldHandle>.columns %}
+  {% set rows = <FieldHandle>.rows %}
+
+  <table class="<FieldClass> stylised">
+
+    <caption>{{ "<FieldName>"|t }}</caption>
+
+    <thead>
+      <tr>
+        {% for col in columns %}
+          <th align="{{ col.align }}">{{ col.heading|t }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          {% for cell in row %}
+            <td align="{{ columns[loop.index0].align }}" data-label="{{ columns[loop.index0].heading }}"{{ cell is empty ? 'class=empty'}}><span>{{ cell|t|raw }}</span></td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+
+{% endif %}

@@ -1,0 +1,18 @@
+{% if gallery is defined and gallery is not empty %}
+
+  <gallery-container data-count="{{ gallery|length }}">
+
+    {% for image in gallery.all %}
+
+      <gallery-image {{loop.first ? 'class="show"'}}style="background-image:url({{ image.getUrl(featured) }}); {{ focalpoint(image) }}"/></gallery-image>
+
+    {% endfor %}
+
+    <gallery-naviation>
+      <button class="prev">{{ svg('arrow-left')}}</button>
+      <button class="next">{{ svg('arrow-right')}}</button>
+    </gallery-naviation>
+
+  </gallery-container>
+
+{% endif %}

@@ -1,0 +1,50 @@
+////////////////////////////////////////////////////////////////////////////////
+// Testimonial quotes
+////////////////////////////////////////////////////////////////////////////////
+
+testimonial-quotes {
+
+  $quoteation-size : 90;
+
+  display:block;
+  position:relative;
+  margin:spacer(3) auto;
+  width:100%;
+  max-width:$medium + px;
+
+  // quotebocks
+  blockquote {
+    quotes:none;
+    text-align:center;
+    margin-left:auto; margin-right:auto;
+    font-style: italic;
+    padding:0 $quoteation-size/2 + $gap0;
+
+    @include var(color);
+    @include responsive-fontsize($h3 $h2, $h4, $large, $small, true 100);
+
+    footer {
+      display:block;
+      font-size:$font-size + px;
+    }
+  }
+
+  // Quotation Marks
+  svg {
+    &.icon-quotes-open { left:0; top:0; }
+    &.icon-quotes-close { right:0; bottom:0; }
+    &.icon-quotes-open, &.icon-quotes-close { @include var(fill); }
+    opacity:0.2;
+    position:absolute;
+    @include size($quoteation-size/2, ($quoteation-size - ($quoteation-size/100 * 20))/2);
+  }
+
+  @include break($small, '<') {
+    blockquote { padding:0 $gap; }
+    svg { opacity:0.1;
+      &.icon-quotes-open { top:- $quoteation-size/4 + px; }
+      &.icon-quotes-close { bottom:- $quoteation-size/4 + px; }
+    }
+  }
+
+}

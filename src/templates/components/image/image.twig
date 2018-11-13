@@ -1,0 +1,290 @@
+{# ////////////////////////////////////////////////////////////////////////// #}
+{# Featured Image                                                             #}
+{# ////////////////////////////////////////////////////////////////////////// #}
+
+{# Options that can be passed with the include: ================================
+
+  image                    Default: entry or cateogry image based on default fieldHandle.
+                  {Object} Passing an entry or category will try to find an image element based on the fieldHandle.
+                           Or an image field handle can be passed explicitly `entry.featuredImage.one`.
+                  {Array}  Passing an array of a max of two strings will define the first string to 'desktop',
+                           and if a second string exists, assigns that to a 'mobile' image.
+                           Passing just one string in the array will disable Adapative mode.
+                  {String} Defines this as the desktop image. This disables Adapative mode.
+
+  content         {String} Default: n/a
+                           Add additional markup into the custom element wrapper.
+
+  featuredImage   {Bool}   Default: true
+                           Outright disable/enable the featured image.
+
+  adapative       {Bool}   Default: true
+                           Include srcset data to allow for adapative images.
+                           One for desktop and one for mobile.
+
+  fieldHandle     {String} Default: 'featuredImage'
+                           The field handle to use if an entry field object is passed.
+
+  element         {String} Default: 'figure'
+                           Custom element tag name that wraps everthing. (Must include at least one hyphen)
+
+  imageTitle      {String} Default: Page title or site name
+                           Choose a specific alt tag title.
+
+  fallback        {Bool}   Default: true
+                           If images aren't found, fallback images will be used instead.
+                           Setting this to false will allow broken images (sometimes good for debugging).
+
+  fallbackImages  {Array}  Default: {desktop : images ~ 'default-featured.jpg', mobile : images ~ 'default-featured-mobile.jpg'}
+                           Desktop and mobile image fallbacks if an image doesn't exist.
+
+  fallbackImage   {String} Default: n/a
+                           A single image path to use as a fallback. This disables Adapative mode.
+
+  transform       {Bool}   Default: true
+                           Disable any image transforms and just use original images.
+
+  imageTransforms {Array}  { desktop : featured ?? {"mode" : "fit",  "width" : 1200}, mobile : mobile ?? {"mode" : "crop", "width" : 480, "height" : 640, "quality" : 60} }
+                           Desktop and mobile image transforms to use respectively.
+
+  imageTransform  {Array}  Default: n/a
+                           Essentailly a shorthand method for defining a desktop
+                           transform. Mobile transform will get ignored and disables Adapative mode.
+
+  lorem            {Bool}  Default: false
+                           Fallback images will resolve to images themed relative to the organisation
+                           type (defined in config.json). If 'organisation' isn't defined then
+                           random Cat images will be used instead. Image response time for Lorem images
+                           is extremely and should be handled better where possible, especially on production.
+                           Setting this to false will look for local default images:
+                           { desktop : images ~ 'default-featured.jpg', mobile :  images ~ 'default-featured-mobile.jpg', }
+                           Explicitly defining 'fallbackImages' or 'fallbackImage' will disable lorem images.
+                  {String} Default: Organisation String if passed into confit/settings
+                           Pass a single keyword to choose a type of fallback photo delivered by LoremFlick
+
+  paralax         {Bool}   Default: false
+                           Adds a 'paralax' tag to the wrapper. This can be referenced
+                           to add a paralax effect using Javascript.
+
+== Usage: ======================================================================
+
+{% include '_components/featured-image' with {...} %}
+
+If you are having issues with variable naming conflicts, you can adjust the scope
+of the variables to be relative to this include with 'only' property.
+
+{% include '_components/featured-image' with {...} only %}
+
+A common instance where you don't need the image be adapative and
+only require a small thumbnail, the following will do the trick:
+
+{% include "_components/featured-image" with { imageTransform : thumb } %}
+
+============================================================================= #}
+
+{% if featuredImage ?? true %}
+
+  {# Image field handle #}
+  {% set fieldHandle = fieldHandle ?? false ? fieldHandle : 'featuredImage' %}
+
+  {# Adapative Image #}
+  {% set adapative = adapative ?? true %}
+
+  {# Change the custom element name #}
+  {% set element = element ?? 'figure' %}
+
+  {# This checks that custom elements contain a minimum of two words, each delimted with a hyphen.  #}
+  {% set element = '-' in element or element == 'figure' ? element : element ~ '-element' %}
+
+  {# Define the image element #}
+  {% if image is not defined %}
+    {% if entry is defined and not entry.isFieldEmpty(fieldHandle) %}
+      {% set image = entry[fieldHandle].one ?? null %}
+    {% elseif category is defined and not category.isFieldEmpty(fieldHandle) %}
+      {% set image = category[fieldHandle].one ?? null %}
+    {% endif %}
+  {% else %}
+    {# TODO: Find a way to distinguish between
+    entry.featuredImage and entry.featuredImage.one.
+    So both varients can be passed into the include. #}
+  {% endif %}
+
+  {# Fallbacks Images ------------------------------------------------------- #}
+
+  {% set fallback = fallback ?? true %}
+
+  {% if lorem ?? false %}
+
+    {% set photoSubject = lorem is defined and lorem is string ? lorem : (organisation ?? '') %}
+
+    {% set _fallbackImages = {
+      desktop : 'https://loremflickr.com/1200/720/' ~ photoSubject|kebab ~ '?random=' ~ random(100),
+      mobile :  'https://loremflickr.com/480/640/' ~ photoSubject|kebab ~ '?random=' ~ random(100),
+    } %}
+
+  {% else %}
+
+    {% set _fallbackImages = {
+      desktop : images ~ 'default-featured.jpg',
+      mobile :  images ~ 'default-featured-mobile.jpg',
+    } %}
+
+  {% endif %}
+
+  {% set fallbackImages = fallbackImages is defined and fallbackImages is array ? _fallbackImages|merge(fallbackImages) : _fallbackImages %}
+
+  {% if fallbackImage is defined and fallbackImage is string %}
+    {% set fallbackImages = fallbackImages|merge({desktop:fallbackImage}) %}
+    {% set adapative = false %}
+  {% endif %}
+
+  {# Transforms ------------------------------------------------------------- #}
+
+  {% set transform = transform ?? true %}
+
+  {% set _imageTransforms = {
+    desktop : (transform == true ? featured ?? {"mode" : "fit",  "width" : 1200} : null),
+    mobile :  (transform == true ? mobile ?? {"mode" : "crop", "width" : 480, "height" : 640, "quality" : 60} : null),
+  } %}
+
+  {% set imageTransforms = imageTransforms is defined and imageTransforms is array ? _imageTransforms|merge(imageTransforms) : _imageTransforms %}
+
+  {% if imageTransform is defined and imageTransform is array and transform == true %}
+    {% set imageTransforms = imageTransforms|merge({desktop:imageTransform}) %}
+    {% set adapative = false %}
+  {% endif %}
+
+  {# Images ----------------------------------------------------------------- #}
+
+  {% set _featuredImages = fallback and fallbackImages ? fallbackImages : [] %}
+
+  {% if image ?? false ? image is not empty %}
+
+    {% if image is object %}
+
+      {# Image Object ======================================================= #}
+
+      {% set imageTitle = imageTitle ?? image.title %}
+
+      {% if image.focalPoint ?? false %}
+
+        {# If the image has a focal point, figure out rougly where the focal point
+        is and apply that to the transform position #}
+
+        {% set yFocus   = (image.focalPoint['y']*100)|round %}
+        {% set xFocus   = (image.focalPoint['x']*100)|round %}
+        {% set yPos     = yFocus > 66 ? 'bottom' : yFocus < 33 ? 'top' : 'center' %}
+        {% set xPos     = xFocus > 66 ? 'right' : xFocus < 33 ? 'left' : 'center' %}
+        {% set position = yPos ~ '-' ~ xPos %}
+
+        {% set backgroundPosition = 'background-position:'~xFocus~'% '~yFocus~'%;' %}
+        {% set objectPosition    = 'object-position:'~xFocus~'% '~yFocus~'%;' %}
+
+        {% set _featuredImages = _featuredImages|merge({
+          desktop : image.getUrl(transform == true ? imageTransforms.desktop|merge({position:position}) : null),
+          mobile :  image.getUrl(transform == true ? imageTransforms.mobile|merge({position:position}) : null)
+        }) %}
+
+      {% else %}
+
+        {# If there is not focal point, just grab the image urls and apply transforms #}
+
+        {% set _featuredImages = _featuredImages|merge({
+          desktop : image.getUrl(transform == true ? imageTransforms.desktop : null),
+          mobile :  image.getUrl(transform == true ? imageTransforms.mobile : null)
+        }) %}
+
+      {% endif %}
+
+    {% elseif image is array %}
+
+      {# Image Array ======================================================== #}
+
+      {% set imageTitle = imageTitle ?? image[0] %}
+
+      {% if image|length == 2 %}
+
+        {# Two strings passed, one for desktop, the second for mobile #}
+        {% set _featuredImages = _featuredImages|merge({
+          desktop : (image[0] is not url ? images ~ '/' : '') ~ (image[0]|trim('/')),
+          mobile :  (image[1] is not url ? images ~ '/' : '') ~ (image[1]|trim('/'))
+        }) %}
+
+      {% else %}
+
+        {# Only one string passed in the array. Both mobile and desktop images will be the same #}
+        {% set _featuredImages = _featuredImages|merge({
+          desktop : (image[0] is not url ? images ~ '/' : '') ~ (image[0]|trim('/')),
+          mobile :  (image[0] is not url ? images ~ '/' : '') ~ (image[0]|trim('/'))
+        }) %}
+
+        {% set adapative = false %}
+
+      {% endif %}
+
+    {% elseif image is string %}
+
+      {# Image String ======================================================= #}
+
+      {% set _featuredImages = _featuredImages|merge({
+        desktop : (image is not url ? images ~ '/' : '') ~ (image|trim('/'))
+      }) %}
+
+      {% set imageTitle = imageTitle ?? image %}
+      {% set adapative = false %}
+
+    {% endif %}
+
+  {% endif %}
+
+
+  {# Validations and final checks =========================================== #}
+
+  {% if fallback == true %}
+
+    {# Check desktop image and use a fallback where necessary #}
+    {% if fallbackImages and _featuredImages['desktop'] is not defined %}
+      {% set _featuredImages = _featuredImages|merge({desktop : fallbackImages.desktop }) %}
+    {% endif %}
+
+    {# Check mobile image and use a fallback where necessary #}
+    {% if fallbackImages and _featuredImages['mobile'] is not defined %}
+      {% set _featuredImages = _featuredImages|merge({mobile : fallbackImages.mobile }) %}
+    {% endif %}
+
+  {% endif %}
+
+  {# Define a couple potential fallbacks for the alt tags #}
+  {% set imageTitle = imageTitle ?? false and imageTitle is not empty ? imageTitle : (title ?? siteName) %}
+
+  {# ------------------------------------------------------------------------ #}
+  {# Compile Featured Image                                                   #}
+  {# ------------------------------------------------------------------------ #}
+
+  {% if _featuredImages %}
+
+    {% if adapative %}
+
+      <{{element}} data-desktop="{{ _featuredImages.desktop }}" data-mobile="{{ _featuredImages.mobile }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
+        <img sizes="(max-width: 1920px) 100vw, 1920px"
+             srcset="{{ _featuredImages.desktop }} 1100w, {{ _featuredImages.mobile }} 550w"
+             src="{{ _featuredImages.desktop }}"
+             alt="{{ imageTitle }}"
+             style="{{ objectPosition ?? null }}">
+        {{ content ?? false ? content|raw }}
+      </{{element}}>
+
+    {% else %}
+
+      <{{element}} data-desktop="{{ _featuredImages.desktop }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
+        <img src="{{ _featuredImages.desktop }}"
+             alt="{{ imageTitle }}"
+             style="{{ objectPosition ?? null }}">
+        {{ content ?? false ? content|raw }}
+      </{{element}}>
+
+    {% endif %}
+
+  {% endif %}
+
+{% endif %}

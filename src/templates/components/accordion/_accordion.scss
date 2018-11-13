@@ -1,0 +1,136 @@
+////////////////////////////////////////////////////////////////////////////////
+// Accordion
+////////////////////////////////////////////////////////////////////////////////
+
+.accordion {
+
+  $speed : 0.3;
+  position:relative;
+  display:block;
+  padding-left:0;
+  margin-bottom:$gap;
+  width:100%;
+
+  // Heading Buttons ===========================================================
+
+  > *:first-child {
+    position:relative;
+    display:block;
+    width:100%;
+    padding:12px 25+$gap2 12px $gap;
+    margin-bottom:0;
+    border-bottom:1px solid col($grey, 0);
+    cursor:pointer;
+    font-size:$font-size + px;
+    @extend .bold;
+    @include var(color);
+    @include var(background-color, secondary);
+    @include transition(color background-color border-color);
+
+    .icon-arrow-right {
+      position:absolute;
+      stroke-width:14px;
+      right:$gap; top:50%;
+      @include var(stroke);
+      @include transform(y -50%, rotate 0);
+      @include transition(transform $ease-out-back, stroke);
+      @include symbol-size('arrow-right', 10px);
+    }
+
+    &:hover {
+      @include var(color);
+      .icon-arrow-right {
+        @include var(stroke);
+        @include transform(y -50%, rotate 90);
+      }
+    }
+
+  }
+
+  // Closed - Wrapper block ====================================================
+
+  > *:last-child {
+    display:block;
+    height:0;
+    overflow:hidden;
+    @include transition(height $speed $speed);
+
+    // Content block -----------------------------------------------------------
+
+    > *:last-child {
+      display:block;
+      opacity:0;
+      padding:$gap2 $gap;
+      background-color:white;
+      @include font-size(16 30);
+      @include transition(opacity 0 $speed);
+    }
+  }
+
+  // Open ======================================================================
+  &.open {
+
+    // Heading Buttons ---------------------------------------------------------
+
+    > *:first-child {
+      border-bottom-color:$grey;
+      color:white;
+      @include var(background-color);
+
+      .icon-arrow-right {
+        stroke:white;
+        @include transform(y -50%, rotate -90);
+      }
+    }
+
+    // Wrapper block -----------------------------------------------------------
+
+    > *:last-child {
+      @include transition-delay(0);
+
+      // Content block ---------------------------------------------------------
+
+      > *:first-child {
+        background-color:$grey;
+        opacity:1;
+        @include transition-delay($speed);
+      }
+    }
+  }
+
+  // Nested accordions =========================================================
+
+  .accordion {
+
+    // Heading Buttons ---------------------------------------------------------
+
+    > *:first-child {
+      background-color:white;
+    }
+
+    // Wrapper block -----------------------------------------------------------
+
+  > *:last-child {
+
+      // Content block ---------------------------------------------------------
+
+      > *:first-child {
+        background-color:white;
+      }
+    }
+
+    &.open {
+
+      // Heading Buttons -------------------------------------------------------
+
+      > *:first-child {
+        @include var(background-color);
+        color:white;
+      }
+    }
+  }
+
+  @include break($medium, '<') {
+    > *:last-child > *:last-child { padding:$gap;  }
+  }
+}

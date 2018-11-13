@@ -1,0 +1,104 @@
+////////////////////////////////////////////////////////////////////////////////
+// Responsive Table
+////////////////////////////////////////////////////////////////////////////////
+
+table.stylised {
+
+  $border-size         : 1px;
+  $cell-padding        : 12px $gap;
+  $cell-text-colour    : $text;
+  $heading-text-colour : white;
+  $row-shade-colour    : white;
+  $row-shade-1         : rgba($row-shade-colour, 0.2);
+  $row-shade-2         : rgba($row-shade-colour, 0.9);
+  $row-shade-3         : rgba($row-shade-colour, 0.8);
+  $table-theme         : black;
+
+  position:relative;
+  width:calc(100% + #{$border-size*2});
+  margin-top:$gap;
+  margin-bottom:$gap;
+  border:$border-size solid $row-shade-colour;
+  left:- $border-size;
+
+  background-color:$table-theme;
+
+  thead tr th, tbody tr td, tbody tr td:before, caption {
+    padding:$cell-padding;
+    border:$border-size solid $row-shade-colour;
+  }
+
+  // Table Head
+  thead tr th, tbody tr td:before, caption {
+    color:$heading-text-colour;
+    font-weight:bold;
+  }
+
+  // Heading caption
+  caption {
+    border-bottom:0; width:100%;
+    text-align:left;
+    background-color:$table-theme;
+    & + thead tr th {
+      background-color:$row-shade-1;
+      border-width:0;
+    }
+  }
+
+  tbody tr:last-of-type td.empty {
+    background-color:$row-shade-colour;
+  }
+
+  // Table Body
+  tbody tr {
+    background-color:$row-shade-3;
+    &:nth-child(odd) { background-color:$row-shade-2; }
+    td { color:$cell-text-colour}
+  }
+
+  @media only screen and (max-width: 800px)  {
+
+    display: block;
+
+    caption { display:block; }
+
+    thead { display: none; }
+
+    tbody {
+      display:table;
+      width:100%;
+      tr {
+        display: table-row-group;
+        background-color:initial;
+        &:nth-child(odd) {
+          background-color:initial;
+          td:before { background-color:$row-shade-1; }
+          td > span { background-color:$row-shade-3; }
+        }
+
+        td {
+          display: table-row;
+          & > span {
+             width:100%;
+            background-color:$row-shade-2;
+          }
+          &.empty {
+            display:none;
+          }
+        }
+
+        td:before, td > span {
+          display: table-cell;
+          padding:$cell-padding;
+        }
+
+        td:before {
+          content: attr(data-label);
+        }
+
+      }
+
+    }
+
+  }
+}

@@ -1,0 +1,43 @@
+{# ////////////////////////////////////////////////////////////////////////// #}
+{# Links                                                                      #}
+{# ////////////////////////////////////////////////////////////////////////// #}
+
+{% macro create(handle, data) %}
+
+  {% if data != false %}
+
+    {% set text     = false %}
+    {% set internal = false %}
+    {% set external = false %}
+    {% set asset    = false %}
+    {% set link     = false %}
+    {% set blank    = false %}
+
+    {% if data|length %}
+      {% for item in data %}
+        {% set text     = item[handle~'LinkText']     ?? item['linkText']     ?? text %}
+        {% set internal = item[handle~'InternalLink'] ?? item['internalLink'] ?? internal %}
+        {% set external = item[handle~'ExternalLink'] ?? item['externalLink'] ?? external %}
+        {% set asset    = item[handle~'LocalAsset']   ?? item['localAsset']   ?? asset %}
+      {% endfor %}
+    {% endif %}
+
+    {% if internal.one ?? false %}
+      {% set link = internal.one.url ?? false %}
+      {% set text = text is empty ? internal.one.title : text %}
+    {% elseif external %}
+      {% set link = external %}
+      {% set blank = true %}
+    {% elseif asset %}
+      {% set link = asset.one.url ?? false %}
+      {% set text = text is empty ? asset.one.title : text %}
+      {% set blank = true %}
+    {% endif %}
+
+    {% if link %}
+      <a href="{{ link }}"{{ blank ? ' target="_blank"' }}>{{ text is not empty ? text : 'Find Out More' }}</a>
+    {% endif %}
+
+  {% endif %}
+
+{% endmacro %}
