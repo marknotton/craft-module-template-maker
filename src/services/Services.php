@@ -41,6 +41,7 @@ class Services extends Component {
   // If field has a specific handle, refer to sample file by reference
   private $fieldAliases = [
     'featuredImage' => 'image',
+    'accordion'     => 'accordion',
     'contentBlocks' => 'content-blocks',
     'telephone'     => 'telephone'
   ];
@@ -50,7 +51,8 @@ class Services extends Component {
   // within the template markup. Otherwise, just include it's content.
   private $fieldAliasesToInclude = [
     'image',
-    'content-blocks'
+    'content-blocks',
+		'accordion'
   ];
 
   // Assign a field type to a file.
@@ -79,7 +81,7 @@ class Services extends Component {
     'modules\helpers\fields\Video' => 'Video',
     'verbb\supertable\fields\SuperTableField' => 'SuperTable',
     'supercool\tablemaker\fields\TableMakerField' => 'TableMaker',
-		// 'workingconcept\rangeslider\fields\RangeSliderField' => 'RangeSlider'
+		'workingconcept\rangeslider\fields\RangeSliderField' => 'RangeSlider'
   ];
 
   // ===========================================================================
@@ -142,9 +144,9 @@ class Services extends Component {
 
 				// For quick testing, umcomment these. These will create a template on page load.
 				// DO NOT PUT THIS LIVE. It will overwrite files without question.
-        $settings['timestamp'] = '';
-        $settings['variables'] = true;
-        $this->create($settings);
+        // $settings['timestamp'] = '';
+        // $settings['variables'] = true;
+        // $this->create($settings);
       }
     }
   }
@@ -359,6 +361,9 @@ class Services extends Component {
 
 					if ( empty($fieldTypeName) ) {
 
+						// If the field type isn't recognised (normally third party),
+						// Then report this in the template.
+
 						$markup .= $this->commentInline($field['name'], $field['handle'], 1);
 						$markup .= "\n".$this->indentContent("{# Template Maker Doesn't support the ".$field['name']." fieldtype. #}\n", 1);
 
@@ -368,8 +373,8 @@ class Services extends Component {
 	          $fieldTypeName = preg_replace('/([a-z])([A-Z])/s','$1 $2', $fieldTypeName);
 
 	          // If the file exists.
-	          if ( !empty($fieldContent) || !empty($matrixContent) || !empty($fieldFile) && file_exists($fieldFile)) {
 
+	          if ( !empty($fieldContent) || !empty($matrixContent) || !empty($fieldFile) && file_exists($fieldFile)) {
 	            // Comment line for the field name.
 	            $markup .= $this->commentInline($field['name'], $fieldTypeName, ($this->rule('matrix') ? 5 : 1));
 
@@ -380,13 +385,18 @@ class Services extends Component {
 	              $component = Helpers::$app->request->fileexists($destination);
 
 	              if ( !$component ) {
-	                copy($fieldFile, $destination);
+									if ( $fieldFileName == 'content-blocks') {
+										$this->contentBlocks($field, $settings, $fieldFile, $destination);
+									} else {
+	                	copy($fieldFile, $destination);
+									}
 	              }
 
-	              if ( !$this->rule('matrix') ) {
-	                $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' %}\n", 1);
-	              } else {
-	                $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' with { image : block.".$field['handle'].".one } %}\n", 5);
+	              // if ( $this->rule('matrix') ) {
+									// $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' %}\n", ($this->rule('matrix') ? 5 : 1));
+								// } else {
+	                $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' %}\n", ($this->rule('matrix') ? 5 : 1));
+	                // $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' with { image : block.".$field['handle'].".one } %}\n", 5);
 	              }
 
 	            } else {
@@ -608,6 +618,36 @@ class Services extends Component {
   // ===========================================================================
   // Special rules for specific field types
   // ===========================================================================
+
+	// Content Block Field -------------------------------------------------------
+
+  private function contentBlocks($field, $settings, $fieldFile, $destination) {
+
+		/*
+		If a content block template doesn't exist in the _components folder.
+		And should a contentBlock field exist on a section page.
+		Clone the sample file and render the matrix within it. Then generate a
+		new template folder into the _components folder.
+		*/
+
+		$contentBlockSample = $this->commentHeader('Content Blocks');
+
+		$contentBlockSample .= file_get_contents($fieldFile);
+
+		$contentBlockMatrix = $this->matrix($field, $settings);
+
+		// Replace any instances of the string 'fieldHandle', and replace it
+		// with the relivant fieldHandle.
+		$find    = ["<FieldHandle>", "<FieldName>", "<FieldClass>", "<FieldContent>"];
+		$replace = [$field['handle'], $field['name'], StringHelper::toKebabCase($field['handle']), $contentBlockMatrix];
+
+		$contentBlockSample = str_replace($find, $replace, $contentBlockSample);
+
+		$contentBlockTemplate = fopen($destination, "w") or die("Unable to open file!");
+		fwrite($contentBlockTemplate, $contentBlockSample);
+		fclose($contentBlockTemplate);
+
+  }
 
   // Redactor Field ------------------------------------------------------------
 
