@@ -78,7 +78,8 @@ class Services extends Component {
     // Third Party
     'modules\helpers\fields\Video' => 'Video',
     'verbb\supertable\fields\SuperTableField' => 'SuperTable',
-    'supercool\tablemaker\fields\TableMakerField' => 'TableMaker'
+    'supercool\tablemaker\fields\TableMakerField' => 'TableMaker',
+		// 'workingconcept\rangeslider\fields\RangeSliderField' => 'RangeSlider'
   ];
 
   // ===========================================================================
@@ -140,10 +141,10 @@ class Services extends Component {
         Craft::$app->view->registerJsVar('templateMakerForm', str_replace(array("\n", "\r"), '', $template));
 
 				// For quick testing, umcomment these. These will create a template on page load.
-				// DO NOT PUT THIS LIVE. It will overwrite files without question. 
-        // $settings['timestamp'] = '';
-        // $settings['variables'] = true;
-        // $this->create($settings);
+				// DO NOT PUT THIS LIVE. It will overwrite files without question.
+        $settings['timestamp'] = '';
+        $settings['variables'] = true;
+        $this->create($settings);
       }
     }
   }
@@ -303,6 +304,7 @@ class Services extends Component {
           // Predefine content and file variables for the next bit...
           $fieldContent = false;
           $fieldFile    = false;
+					$fieldTypeName = false;
 
           // Get field settings;
           $settings = json_decode($field['settings']);
@@ -317,7 +319,8 @@ class Services extends Component {
 
             // Use the $fieldFileName to set a field type name to be used in the generated documentation.
             $fieldTypeName = array_key_exists($field['type'], $this->fieldFiles) ? $this->fieldFiles[$field['type']] : $fieldFileName;
-            // Define a sample file path for the field type.
+
+						// Define a sample file path for the field type.
             $fieldFile = Craft::getAlias('@template-maker').'/templates/samples/'.$fieldFileName.'.twig';
 
             if ( in_array($fieldFileName, $this->fieldAliasesToInclude)) {
@@ -354,70 +357,77 @@ class Services extends Component {
 
           }
 
-          // Camel Case field types to include white space
-          $fieldTypeName = preg_replace('/([a-z])([A-Z])/s','$1 $2', $fieldTypeName);
+					if ( empty($fieldTypeName) ) {
 
-          // If the file exists.
-          if ( !empty($fieldContent) || !empty($matrixContent) || !empty($fieldFile) && file_exists($fieldFile)) {
+						$markup .= $this->commentInline($field['name'], $field['handle'], 1);
+						$markup .= "\n".$this->indentContent("{# Template Maker Doesn't support the ".$field['name']." fieldtype. #}\n", 1);
 
-            // Comment line for the field name.
-            $markup .= $this->commentInline($field['name'], $fieldTypeName, ($this->rule('matrix') ? 5 : 1));
+					} else {
 
-            if ($includeField) {
+	          // Camel Case field types to include white space
+	          $fieldTypeName = preg_replace('/([a-z])([A-Z])/s','$1 $2', $fieldTypeName);
 
-              $destination = Craft::getAlias('@templates').'/_components/'.$fieldFileName.'.twig';
+	          // If the file exists.
+	          if ( !empty($fieldContent) || !empty($matrixContent) || !empty($fieldFile) && file_exists($fieldFile)) {
 
-              $component = Helpers::$app->request->fileexists($destination);
+	            // Comment line for the field name.
+	            $markup .= $this->commentInline($field['name'], $fieldTypeName, ($this->rule('matrix') ? 5 : 1));
 
-              if ( !$component ) {
-                copy($fieldFile, $destination);
-              }
+	            if ($includeField) {
 
-              if ( !$this->rule('matrix') ) {
-                $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' %}\n", 1);
-              } else {
-                $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' with { image : block.".$field['handle'].".one } %}\n", 5);
-              }
+	              $destination = Craft::getAlias('@templates').'/_components/'.$fieldFileName.'.twig';
 
-            } else {
+	              $component = Helpers::$app->request->fileexists($destination);
 
-              // Get sample file contents.
-              if ( empty($fieldContent) ) {
-                $fieldContent = file_get_contents($fieldFile);
-              }
+	              if ( !$component ) {
+	                copy($fieldFile, $destination);
+	              }
 
-              // Indent all lines for.
-              $fieldContent = $this->indentContent($fieldContent, ($this->rule('matrix') ? 5 : 1));
+	              if ( !$this->rule('matrix') ) {
+	                $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' %}\n", 1);
+	              } else {
+	                $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' with { image : block.".$field['handle'].".one } %}\n", 5);
+	              }
 
-              // Replace any instances of the string 'fieldHandle', and replace it
-              // with the relivant fieldHandle.
-              $find    = ["<FieldHandle>", "<FieldName>", "<FieldClass>", "<FieldContent>"];
-              $replace = [$field['handle'], $field['name'], StringHelper::toKebabCase($field['handle']), ($matrixContent ?? false)];
+	            } else {
 
-              $fieldContent = str_replace($find, $replace, $fieldContent);
+	              // Get sample file contents.
+	              if ( empty($fieldContent) ) {
+	                $fieldContent = file_get_contents($fieldFile);
+	              }
 
-              if (!$this->rule('matrix') && $this->rule('variables')) {
+	              // Indent all lines for.
+	              $fieldContent = $this->indentContent($fieldContent, ($this->rule('matrix') ? 5 : 1));
 
-                $firstLine = strtok($fieldContent, "\n");
+	              // Replace any instances of the string 'fieldHandle', and replace it
+	              // with the relivant fieldHandle.
+	              $find    = ["<FieldHandle>", "<FieldName>", "<FieldClass>", "<FieldContent>"];
+	              $replace = [$field['handle'], $field['name'], StringHelper::toKebabCase($field['handle']), ($matrixContent ?? false)];
 
-                if ( $this->startsWith($firstLine, "\t{% set") ) {
+	              $fieldContent = str_replace($find, $replace, $fieldContent);
 
-                  $this->variables .= $firstLine."\n";
-                  $fieldContent = str_replace($firstLine."\n\n", '', $fieldContent);
+	              if (!$this->rule('matrix') && $this->rule('variables')) {
 
-                }
+	                $firstLine = strtok($fieldContent, "\n");
 
-              }
+	                if ( $this->startsWith($firstLine, "\t{% set") ) {
 
-              // Add modified contents to layout.
-              $markup .= "\n".$fieldContent;
+	                  $this->variables .= $firstLine."\n";
+	                  $fieldContent = str_replace($firstLine."\n\n", '', $fieldContent);
 
+	                }
 
-            }
+	              }
 
-          }
+	              // Add modified contents to layout.
+	              $markup .= "\n".$fieldContent;
 
-        }
+	            }
+
+	          }
+
+	        }
+				}
 
         if ($this->rule('matrix')) {
           // Tab close element.
