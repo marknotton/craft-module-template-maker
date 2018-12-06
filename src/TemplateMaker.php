@@ -73,7 +73,6 @@ class TemplateMaker extends Module {
     if ( !Craft::$app->getRequest()->getIsConsoleRequest() ) {
 
 			self::$app = $this;
-      // self::$config = TemplateMaker::$app->service->getConfig();
 
       Event::on(
         CraftVariable::class,
@@ -105,14 +104,14 @@ class TemplateMaker extends Module {
     }
 
 
-    // TODO: Only allow TemplateMaker to set if it's a CP Request or Controller Request.
-    // The follow condition doesn't seem to work if a controller is calling TemplateMaker
-    // if ( Craft::$app->getRequest()->getIsActionRequest() || Craft::$app->getRequest()->getIsCpRequest() ) {
-      // Add templateMaker class if template-maker is enabled in the config/helpers.php
-      if (getenv('ENVIRONMENT') == 'dev' ) {
+    if ( Craft::$app->getRequest()->getIsActionRequest() || Craft::$app->getRequest()->getIsCpRequest() ) {
+			// Define the URL segments
+			$segments = Craft::$app->getRequest()->getSegments();
+			// Checks in the URL to determine if the user is actually on an individual entry type page
+			if ( getenv('ENVIRONMENT') == 'dev' && in_array("entrytypes", $segments) && array_search("entrytypes", $segments) < count($segments) - 1 ) {
         TemplateMaker::$app->service->init();
       }
-    // }
+    }
 
     // Register site routes
     Event::on(

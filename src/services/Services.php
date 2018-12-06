@@ -397,10 +397,9 @@ class Services extends Component {
 								// } else {
 	                $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' %}\n", ($this->rule('matrix') ? 5 : 1));
 	                // $markup .= "\n".$this->indentContent("{% include '_components/".$fieldFileName."' with { image : block.".$field['handle'].".one } %}\n", 5);
-	              }
+	              // }
 
 	            } else {
-
 	              // Get sample file contents.
 	              if ( empty($fieldContent) ) {
 	                $fieldContent = file_get_contents($fieldFile);
