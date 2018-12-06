@@ -139,9 +139,11 @@ class Services extends Component {
         // Render the templateMakerForm variable as a JS variable.
         Craft::$app->view->registerJsVar('templateMakerForm', str_replace(array("\n", "\r"), '', $template));
 
-        $settings['timestamp'] = '';
+				// For quick testing, umcomment these. These will create a template on page load.
+				// DO NOT PUT THIS LIVE. It will overwrite files without question. 
+        // $settings['timestamp'] = '';
         // $settings['variables'] = true;
-        $this->create($settings);
+        // $this->create($settings);
       }
     }
   }
