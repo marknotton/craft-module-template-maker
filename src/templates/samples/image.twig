@@ -51,7 +51,11 @@
                            Essentailly a shorthand method for defining a desktop
                            transform. Mobile transform will get ignored and disables Adapative mode.
 
-  lorem            {Bool}  Default: false
+  lazyload        {Bool}   Default: true
+													 Browsers are begining to support native lazy loading of images that only appear when they are about to
+													 come into the viewport.
+
+  lorem           {Bool}   Default: false
                            Fallback images will resolve to images themed relative to the organisation
                            type (defined in config.json). If 'organisation' isn't defined then
                            random Cat images will be used instead. Image response time for Lorem images
@@ -270,6 +274,7 @@ only require a small thumbnail, the following will do the trick:
              srcset="{{ _featuredImages.desktop }} 1100w, {{ _featuredImages.mobile }} 550w"
              src="{{ _featuredImages.desktop }}"
              alt="{{ imageTitle }}"
+						 {{ lazyload ? ' lazyload=on ' }}
              style="{{ objectPosition ?? null }}">
         {{ content ?? false ? content|raw }}
       </{{element}}>

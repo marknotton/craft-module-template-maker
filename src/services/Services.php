@@ -4,9 +4,9 @@
  * Methods for creating dynamic templates
  */
 
-namespace modules\helpers\services;
+namespace modules\templatemaker\services;
+use modules\templatemaker\TemplateMaker;
 use modules\helpers\Helpers;
-
 use Craft;
 use craft\web\View;
 use craft\base\Component;
@@ -14,7 +14,7 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\elements\Entry;
 
-class TemplateMaker extends Component {
+class Services extends Component {
 
   private $sections;
   private $segments;
@@ -40,7 +40,7 @@ class TemplateMaker extends Component {
   // Field Aliases
   // If field has a specific handle, refer to sample file by reference
   private $fieldAliases = [
-    'featuredImage' => 'featured-image',
+    'featuredImage' => 'image',
     'contentBlocks' => 'content-blocks',
     'telephone'     => 'telephone'
   ];
@@ -49,7 +49,7 @@ class TemplateMaker extends Component {
   // If one of the above $fieldAliases is found, clone the file and set an include
   // within the template markup. Otherwise, just include it's content.
   private $fieldAliasesToInclude = [
-    'featured-image',
+    'image',
     'content-blocks'
   ];
 
@@ -112,7 +112,6 @@ class TemplateMaker extends Component {
 
         // Set a timestamp to be used as a filename suffix should there be a naming conflict.
         $timestamp = time();
-
         // Get a list of all the files that exist in the templates directory.
         // This will be tested against to instruct users if they are about to
         // overwrite a existing file.
@@ -135,17 +134,21 @@ class TemplateMaker extends Component {
         ];
 
         // Render the template-maker form and return the markup.
-        $template = Craft::$app->view->renderTemplate("helpers/_template-maker/form", $settings);
+        $template = Craft::$app->view->renderTemplate("template-maker/form", $settings);
 
         // Render the templateMakerForm variable as a JS variable.
         Craft::$app->view->registerJsVar('templateMakerForm', str_replace(array("\n", "\r"), '', $template));
 
-        // $settings['timestamp'] = '';
+        $settings['timestamp'] = '';
         // $settings['variables'] = true;
-        // $this->create($settings);
+        $this->create($settings);
       }
     }
   }
+
+	public function getConfig() {
+		return [];
+	}
 
   // ===========================================================================
   // Create Template
@@ -155,6 +158,7 @@ class TemplateMaker extends Component {
 
     // Extract the settings array into variables
     extract((array)$data);
+
 
     // Path and files names ====================================================
 
@@ -209,7 +213,7 @@ class TemplateMaker extends Component {
 
     $markup = $this->commentHeader($this->entryType->name, '#'.$this->entryType->handle, 0, "/");
 
-    $markup .= "\n{% extends '_layouts/main' %}\n\n";
+    $markup .= "\n{% extends '_layouts/master' %}\n\n";
 
     $markup .= "{% block content %}\n";
 
@@ -311,9 +315,8 @@ class TemplateMaker extends Component {
 
             // Use the $fieldFileName to set a field type name to be used in the generated documentation.
             $fieldTypeName = array_key_exists($field['type'], $this->fieldFiles) ? $this->fieldFiles[$field['type']] : $fieldFileName;
-
             // Define a sample file path for the field type.
-            $fieldFile = Craft::getAlias('@helpers').'/templates/_template-maker/samples/'.$fieldFileName.'.twig';
+            $fieldFile = Craft::getAlias('@template-maker').'/templates/samples/'.$fieldFileName.'.twig';
 
             if ( in_array($fieldFileName, $this->fieldAliasesToInclude)) {
 
@@ -340,11 +343,11 @@ class TemplateMaker extends Component {
               break;
               case "Matrix":
                 $matrixContent = $this->matrix($field, $settings);
-                $fieldFile = Craft::getAlias('@helpers').'/templates/_template-maker/fields/Matrix.twig';
+                $fieldFile = Craft::getAlias('@template-maker').'/templates/fields/Matrix.twig';
                 $this->removeRule('matrix');
               break;
               default:
-                $fieldFile = Craft::getAlias('@helpers').'/templates/_template-maker/fields/'.$fieldFileName.'.twig';
+                $fieldFile = Craft::getAlias('@template-maker').'/templates/fields/'.$fieldFileName.'.twig';
             }
 
           }
@@ -610,12 +613,12 @@ class TemplateMaker extends Component {
     $config = json_decode(file_get_contents($path) ?? false);
 
     if ( ($config->buttons ?? false) && in_array("image", $config->buttons)) {
-      return Craft::getAlias('@helpers').'/templates/_template-maker/fields/Redactor_Images.twig';
+      return Craft::getAlias('@template-maker').'/templates/fields/Redactor_Images.twig';
     }
 
     // Otherwise, just return the standard Redactor sample file.
 
-    return Craft::getAlias('@helpers').'/templates/_template-maker/fields/Redactor.twig';
+    return Craft::getAlias('@template-maker').'/templates/fields/Redactor.twig';
   }
 
   // Matrix Field --------------------------------------------------------------

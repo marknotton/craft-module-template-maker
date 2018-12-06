@@ -1,19 +1,18 @@
 <?php
 
-namespace modules\helpers\controllers;
+namespace modules\templatemaker\controllers;
 
+use modules\templatemaker\TemplateMaker;
 use modules\helpers\Helpers;
 
 use Craft;
 use craft\web\Controller;
-use craft\helpers\StringHelper;
-use craft\elements\Entry;
 
-class TemplateMakerController extends Controller {
+class DefaultController extends Controller {
 
-  protected $allowAnonymous = ['template'];
+  protected $allowAnonymous = ['index'];
 
-  public function actionDefault() {
+  public function actionIndex() {
 
     // Extract all post paramaters as variables
     $data = json_decode(file_get_contents('php://input'));
@@ -23,7 +22,7 @@ class TemplateMakerController extends Controller {
 
     try{
 
-      $response = Helpers::$app->templateMaker->create($data);
+      $response = TemplateMaker::$app->service->create($data);
       $response['success'] = true;
 
       // Craft::$app->getSession()->setNotice("Template Created");

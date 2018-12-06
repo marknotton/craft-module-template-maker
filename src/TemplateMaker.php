@@ -2,9 +2,9 @@
 
 namespace modules\templatemaker;
 
-use modules\helpers\assets\TemplateMakerAssets;
+use modules\templatemaker\assets\TemplateMakerAssets;
 
-use modules\helpers\services\Services;
+use modules\templatemaker\services\Services;
 
 use Craft;
 use craft\i18n\PhpMessageSource;
@@ -26,6 +26,9 @@ use yii\web\NotFoundHttpException;
 
 class TemplateMaker extends Module {
 
+	public static $app;
+	public static $config;
+
   //////////////////////////////////////////////////////////////////////////////
   // Construct
   //////////////////////////////////////////////////////////////////////////////
@@ -33,16 +36,16 @@ class TemplateMaker extends Module {
   public function __construct($id, $parent = null, array $config = [])  {
 
     Craft::setAlias('@modules/templatemaker', $this->getBasePath());
-    Craft::setAlias('@templatemaker', $this->getBasePath());
+    Craft::setAlias('@template-maker', $this->getBasePath());
 
-    $this->controllerNamespace = 'modules\template-maker\controllers';
+    $this->controllerNamespace = 'modules\templatemaker\controllers';
 
     $i18n = Craft::$app->getI18n();
     if (!isset($i18n->translations[$id]) && !isset($i18n->translations[$id.'*'])) {
       $i18n->translations[$id] = [
         'class'            => PhpMessageSource::class,
         'sourceLanguage'   => 'en',
-        'basePath'         => '@modules/template-maker/translations',
+        'basePath'         => '@modules/templatemaker/translations',
         'forceTranslation' => true,
         'allowOverrides'   => true,
       ];
@@ -53,8 +56,6 @@ class TemplateMaker extends Module {
         $e->roots[$this->id] = $baseDir;
       }
     });
-
-    self::$console = Craft::$app->getRequest()->getIsConsoleRequest();
 
     static::setInstance($this);
 
@@ -69,10 +70,10 @@ class TemplateMaker extends Module {
 
     parent::init();
 
-    if ( !self::$console ) {
+    if ( !Craft::$app->getRequest()->getIsConsoleRequest() ) {
 
-      $view = Craft::$app->view;
-      self::$config = TemplateMaker::$app->request->getConfig();
+			self::$app = $this;
+      // self::$config = TemplateMaker::$app->service->getConfig();
 
       Event::on(
         CraftVariable::class,
@@ -80,7 +81,7 @@ class TemplateMaker extends Module {
         function (Event $event) {
           /** @var CraftVariable $variable */
           $variable = $event->sender;
-          $variable->set('helpers', Variables::class);
+          $variable->set('templatemaker', Variables::class);
         }
       );
 
@@ -103,15 +104,13 @@ class TemplateMaker extends Module {
       }
     }
 
+
     // TODO: Only allow TemplateMaker to set if it's a CP Request or Controller Request.
     // The follow condition doesn't seem to work if a controller is calling TemplateMaker
     // if ( Craft::$app->getRequest()->getIsActionRequest() || Craft::$app->getRequest()->getIsCpRequest() ) {
       // Add templateMaker class if template-maker is enabled in the config/helpers.php
-      if (getenv('ENVIRONMENT') == 'dev' && TemplateMaker::$app->request->admin()) {
-        self::$app->setComponents([
-          'templateMaker' => \modules\helpers\services\TemplateMaker::class
-        ]);
-        TemplateMaker::$app->templateMaker->init();
+      if (getenv('ENVIRONMENT') == 'dev' ) {
+        TemplateMaker::$app->service->init();
       }
     // }
 
@@ -120,7 +119,7 @@ class TemplateMaker extends Module {
       UrlManager::class,
       UrlManager::EVENT_REGISTER_SITE_URL_RULES,
       function (RegisterUrlRulesEvent $event) {
-        $event->rules['template-maker'] = 'helpers/template-maker/default';
+        $event->rules['template-maker'] = 'template-maker/default';
       }
     );
 

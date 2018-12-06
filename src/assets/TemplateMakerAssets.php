@@ -1,6 +1,6 @@
 <?php
 
-namespace modules\helpers\assets;
+namespace modules\templatemaker\assets;
 
 use Craft;
 use craft\web\AssetBundle;
@@ -9,7 +9,7 @@ use craft\web\assets\cp\CpAsset;
 class TemplateMakerAssets extends AssetBundle {
 
   public function init() {
-    $this->sourcePath = "@helpers/assets";
+    $this->sourcePath = "@template-maker/assets";
 
     $this->depends = [
       CpAsset::class,
