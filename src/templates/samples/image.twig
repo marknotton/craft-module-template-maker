@@ -72,17 +72,17 @@
 
 == Usage: ======================================================================
 
-{% include '_components/featured-image' with {...} %}
+{% include '_components/image' with {...} %}
 
 If you are having issues with variable naming conflicts, you can adjust the scope
 of the variables to be relative to this include with 'only' property.
 
-{% include '_components/featured-image' with {...} only %}
+{% include '_components/image' with {...} only %}
 
 A common instance where you don't need the image be adapative and
 only require a small thumbnail, the following will do the trick:
 
-{% include "_components/featured-image" with { imageTransform : thumb } %}
+{% include "_components/image" with { imageTransform : thumb, fallbackImage : images ~ 'default-featured-thumb.jpg' } %}
 
 ============================================================================= #}
 
@@ -274,7 +274,7 @@ only require a small thumbnail, the following will do the trick:
              srcset="{{ _featuredImages.desktop }} 1100w, {{ _featuredImages.mobile }} 550w"
              src="{{ _featuredImages.desktop }}"
              alt="{{ imageTitle }}"
-						 {{ lazyload ? ' lazyload=on ' }}
+						 {{ (lazyload ?? true) ? ' lazyload=on ' }}
              style="{{ objectPosition ?? null }}">
         {{ content ?? false ? content|raw }}
       </{{element}}>
