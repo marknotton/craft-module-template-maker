@@ -95,7 +95,7 @@ only require a small thumbnail, the following will do the trick:
   {% set adapative = adapative ?? true %}
 
   {# Change the custom element name #}
-  {% set element = element ?? 'figure' %}
+  {% set element = (element ?? false) and element is string ? element : 'figure' %}
 
   {# This checks that custom elements contain a minimum of two words, each delimted with a hyphen.  #}
   {% set element = '-' in element or element == 'figure' ? element : element ~ '-element' %}
@@ -269,7 +269,7 @@ only require a small thumbnail, the following will do the trick:
 
     {% if adapative %}
 
-      <{{element}} data-desktop="{{ _featuredImages.desktop }}" data-mobile="{{ _featuredImages.mobile }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
+      <{{element}} image data-error="{{ "E028"|t }}" data-desktop="{{ _featuredImages.desktop }}" data-mobile="{{ _featuredImages.mobile }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
         <img sizes="(max-width: 1920px) 100vw, 1920px"
              srcset="{{ _featuredImages.desktop }} 1100w, {{ _featuredImages.mobile }} 550w"
              src="{{ _featuredImages.desktop }}"
@@ -281,7 +281,7 @@ only require a small thumbnail, the following will do the trick:
 
     {% else %}
 
-      <{{element}} data-desktop="{{ _featuredImages.desktop }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
+      <{{element}} image data-error="{{ "E028"|t }}" data-desktop="{{ _featuredImages.desktop }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
         <img src="{{ _featuredImages.desktop }}"
              alt="{{ imageTitle }}"
              style="{{ objectPosition ?? null }}">
