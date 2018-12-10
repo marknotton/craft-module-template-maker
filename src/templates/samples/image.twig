@@ -11,12 +11,10 @@
                            and if a second string exists, assigns that to a 'mobile' image.
                            Passing just one string in the array will disable Adapative mode.
                   {String} Defines this as the desktop image. This disables Adapative mode.
+                  {Bool}   Outright disable the featured image.
 
   content         {String} Default: n/a
                            Add additional markup into the custom element wrapper.
-
-  featuredImage   {Bool}   Default: true
-                           Outright disable/enable the featured image.
 
   adapative       {Bool}   Default: true
                            Include srcset data to allow for adapative images.
@@ -70,6 +68,9 @@
                            Adds a 'paralax' tag to the wrapper. This can be referenced
                            to add a paralax effect using Javascript.
 
+	error           {String} Default: 'No Image'
+												   Add a data attribute error message
+
 == Usage: ======================================================================
 
 {% include '_components/image' with {...} %}
@@ -86,7 +87,7 @@ only require a small thumbnail, the following will do the trick:
 
 ============================================================================= #}
 
-{% if featuredImage ?? true %}
+{% if image ?? true %}
 
   {# Image field handle #}
   {% set fieldHandle = fieldHandle ?? false ? fieldHandle : 'featuredImage' %}
@@ -269,7 +270,7 @@ only require a small thumbnail, the following will do the trick:
 
     {% if adapative %}
 
-      <{{element}} image data-error="{{ "E028"|t }}" data-desktop="{{ _featuredImages.desktop }}" data-mobile="{{ _featuredImages.mobile }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
+      <{{element}} image data-error="{{ error ?? "E028"|t }}" data-desktop="{{ _featuredImages.desktop }}" data-mobile="{{ _featuredImages.mobile }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
         <img sizes="(max-width: 1920px) 100vw, 1920px"
              srcset="{{ _featuredImages.desktop }} 1100w, {{ _featuredImages.mobile }} 550w"
              src="{{ _featuredImages.desktop }}"
@@ -281,7 +282,7 @@ only require a small thumbnail, the following will do the trick:
 
     {% else %}
 
-      <{{element}} image data-error="{{ "E028"|t }}" data-desktop="{{ _featuredImages.desktop }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
+      <{{element}} image data-error="{{ error ?? "E028"|t }}" data-desktop="{{ _featuredImages.desktop }}" style="{{ backgroundPosition ?? null }}"{{ paralax ?? false ? ' paralax '}}>
         <img src="{{ _featuredImages.desktop }}"
              alt="{{ imageTitle }}"
              style="{{ objectPosition ?? null }}">
